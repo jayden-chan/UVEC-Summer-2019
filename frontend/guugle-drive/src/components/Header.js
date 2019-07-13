@@ -1,7 +1,7 @@
-import React from "react";
-import { Toolbar, AppBar, Grid } from "@material-ui/core";
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-import styled from "styled-components";
+import React from 'react';
+import {Toolbar, AppBar, Grid} from '@material-ui/core';
+import {BrowserRouter as Router, Route, Link} from 'react-router-dom';
+import styled from 'styled-components';
 
 export default function Header() {
   const NavLink = styled.span`
@@ -20,20 +20,31 @@ export default function Header() {
     <AppBar position="fixed">
       <Toolbar>
         <Grid item xs={6}>
-          <Link style={{ textDecoration: "none" }} to="/">
+          <Link style={{textDecoration: 'none'}} to="/">
             <Title>Guugle Drive</Title>
           </Link>
         </Grid>
         <Grid item xs={6}>
           <nav>
-            <Link style={{ textDecoration: "none" }} to="/">
+            <Link style={{textDecoration: 'none'}} to="/">
               <NavLink>Home</NavLink>
             </Link>
-            <Link style={{ textDecoration: "none" }} to="login">
+            <Link style={{textDecoration: 'none'}} to="login">
               <NavLink>Login</NavLink>
             </Link>
-            <Link style={{ textDecoration: "none" }} to="upload">
+            <Link style={{textDecoration: 'none'}} to="signup">
+              <NavLink>Sign Up</NavLink>
+            </Link>
+            <Link style={{textDecoration: 'none'}} to="upload">
               <NavLink>Upload</NavLink>
+            </Link>
+            <Link
+              onClick={() => {
+                localStorage.removeItem('guugle-login-token');
+              }}
+              style={{textDecoration: 'none'}}
+              to="login">
+              <NavLink>Logout</NavLink>
             </Link>
           </nav>
         </Grid>

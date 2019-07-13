@@ -1,10 +1,13 @@
-import React, { Component } from "react";
-import Layout from "../components/Layout";
-import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
-import DeleteIcon from "@material-ui/icons/Delete";
-import Dropzone from "react-dropzone";
-import styled from "styled-components";
+import React, {Component} from 'react';
+import Layout from '../components/Layout';
+import Button from '@material-ui/core/Button';
+import Dropzone from 'react-dropzone';
+import {ToastContainer, toast} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
+
+import IconButton from '@material-ui/core/IconButton';
+import DeleteIcon from '@material-ui/icons/Delete';
+import styled from 'styled-components';
 
 export const Staging = styled.div`
   border-width: 2;
@@ -35,13 +38,12 @@ export const Item = styled.li`
     background-color: #eeeeee;
   }
 `;
-
 export default class Upload extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      files: []
+      files: [],
     };
 
     this.handleAcceptedFiles = this.handleAcceptedFiles.bind(this);
@@ -49,11 +51,17 @@ export default class Upload extends Component {
     this.unstageFile = this.unstageFile.bind(this);
   }
 
+  componentDidMount = async () => {
+    if (!localStorage.getItem('guugle-login-token')) {
+      this.props.history.push('/login');
+    }
+  };
+
   handleAcceptedFiles(acceptedFiles) {
     const currentFiles = this.state.files;
     const newFiles = currentFiles.concat(acceptedFiles);
 
-    this.setState({ files: newFiles });
+    this.setState({files: newFiles});
   }
 
   handleSubmit() {
@@ -61,14 +69,18 @@ export default class Upload extends Component {
 
     this.state.files.forEach(f => formData.append(f.name, f));
 
-    fetch("http://localhost:3001/upload", {
-      method: "POST",
+    fetch('http://localhost:3001/upload', {
+      method: 'POST',
       body: formData,
       headers: {
-        Authorization: localStorage.getItem("guugle-login-token")
-      }
+        Authorization: localStorage.getItem('guugle-login-token'),
+      },
     }).then(res => {
-      console.log(res.status);
+      if (res.status !== 201) {
+        res.text().then(text => alert(text));
+      } else {
+        toast.success('File uploaded!');
+      }
     });
   }
 
@@ -76,30 +88,29 @@ export default class Upload extends Component {
     return (
       <Layout>
         <Dropzone onDrop={this.handleAcceptedFiles}>
-          {({ getRootProps, getInputProps }) => (
+          {({getRootProps, getInputProps}) => (
             <section>
               <div
                 style={{
                   flex: 1,
-                  width: "50%",
-                  marginRight: "auto",
-                  marginLeft: "auto",
-                  marginTop: "2em",
-                  marginBottom: "2em",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  padding: "50px",
+                  width: '50%',
+                  marginRight: 'auto',
+                  marginLeft: 'auto',
+                  marginTop: '2em',
+                  marginBottom: '2em',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  padding: '50px',
                   borderWidth: 2,
                   borderRadius: 2,
-                  borderColor: "#eeeeee",
-                  borderStyle: "dashed",
-                  backgroundColor: "#fafafa",
-                  color: "#bdbdbd",
-                  outline: "none"
+                  borderColor: '#eeeeee',
+                  borderStyle: 'dashed',
+                  backgroundColor: '#fafafa',
+                  color: '#bdbdbd',
+                  outline: 'none',
                 }}
-                {...getRootProps()}
-              >
+                {...getRootProps()}>
                 <input {...getInputProps()} />
                 <p>Drag 'n' drop some files here, or click to select files</p>
               </div>
@@ -114,11 +125,10 @@ export default class Upload extends Component {
                 <Item key={f.name}>
                   "{f.name}"
                   <IconButton
-                    style={{ marginLeft: "0.5em" }}
+                    style={{marginLeft: '0.5em'}}
                     variant="outlined"
                     color="secondary"
-                    onClick={this.unstageFile(f.name)}
-                  >
+                    onClick={this.unstageFile(f.name)}>
                     <DeleteIcon />
                   </IconButton>
                 </Item>
@@ -129,6 +139,7 @@ export default class Upload extends Component {
         <Button onClick={this.handleSubmit} variant="contained" color="primary">
           Upload
         </Button>
+        <ToastContainer hideProgressBar />
       </Layout>
     );
   }
