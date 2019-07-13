@@ -1,10 +1,12 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import Layout from "./Layout";
 import { useDropzone } from "react-dropzone";
 import Button from "@material-ui/core/Button";
 import Dropzone from "react-dropzone";
 
 export default function DropZone() {
+  const [file, setFiles] = useState();
+
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
 
   const files = acceptedFiles.map(file => (
@@ -14,7 +16,15 @@ export default function DropZone() {
   ));
 
   function manageFetch(acceptedFiles) {
-    const link = "http://localhost:3000/upload";
+    var formData = new FormData();
+
+    for (var file in acceptedFiles) {
+      formData.append(file.name, file);
+    }
+
+    console.log("formData:");
+    console.log(formData);
+    const link = "http://localhost:3001/upload";
     fetch(link, {
       method: "POST",
       body: acceptedFiles
@@ -22,7 +32,14 @@ export default function DropZone() {
   }
 
   function onDrop(acceptedFiles) {
-    console.log(acceptedFiles);
+    return (
+      <ul>
+        {acceptedFiles.length > 0 &&
+          acceptedFiles.map(acceptedFile => (
+            <li key={acceptedFiles.length}>{acceptedFile.name}</li>
+          ))}
+      </ul>
+    );
   }
 
   return (
@@ -59,10 +76,8 @@ export default function DropZone() {
       <Button onClick={manageFetch} variant="contained" color="primary">
         Upload
       </Button>
-      <ul>
-        {acceptedFiles.length > 0 &&
-          acceptedFiles.map(acceptedFile => <li>{acceptedFile.name}</li>)}
-      </ul>
+      {acceptedFiles}
+      {onDrop}
     </Layout>
   );
 }
