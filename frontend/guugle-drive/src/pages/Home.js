@@ -15,7 +15,7 @@ export default class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      files: ['afasd', 'asdfasdf', 'asdfasdf', 'asdfas'],
+      files: [],
       download: '',
     };
     this.handleDownload = this.handleDownload.bind(this);
@@ -23,11 +23,11 @@ export default class Home extends Component {
   }
 
   componentDidMount = async () => {
-    // if (!localStorage.getItem("guugle-login-token")) {
-    //   this.props.history.push("/login");
+    if (!localStorage.getItem('guugle-login-token')) {
+      this.props.history.push('/login');
 
-    //   return;
-    // }
+      return;
+    }
 
     const link = 'http://localhost:3001/list';
 
@@ -142,7 +142,7 @@ export default class Home extends Component {
             })}
           </Uploaded>
         </Staging>
-        <ToastContainer hideProgressBar />
+        <ToastContainer hideProgressBar autoClose={1500} />
       </Layout>
     );
   }

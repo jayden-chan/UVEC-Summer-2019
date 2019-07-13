@@ -103,7 +103,7 @@ app.post('/upload', (req, res) => {
       });
     });
   } else {
-    res.status(200).send('hello');
+    res.status(400).send('No file specified');
   }
 });
 

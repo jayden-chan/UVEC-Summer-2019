@@ -48,7 +48,6 @@ export default class Upload extends Component {
 
     this.handleAcceptedFiles = this.handleAcceptedFiles.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.unstageFile = this.unstageFile.bind(this);
   }
 
   componentDidMount = async () => {
@@ -77,7 +76,7 @@ export default class Upload extends Component {
       },
     }).then(res => {
       if (res.status !== 201) {
-        res.text().then(text => alert(text));
+        res.text().then(text => toast.error(text));
       } else {
         toast.success('File uploaded!');
       }
@@ -128,7 +127,13 @@ export default class Upload extends Component {
                     style={{marginLeft: '0.5em'}}
                     variant="outlined"
                     color="secondary"
-                    onClick={this.unstageFile(f.name)}>
+                    onClick={() => {
+                      this.setState({
+                        files: this.state.files.filter(
+                          sf => sf.name !== f.name,
+                        ),
+                      });
+                    }}>
                     <DeleteIcon />
                   </IconButton>
                 </Item>
@@ -139,7 +144,7 @@ export default class Upload extends Component {
         <Button onClick={this.handleSubmit} variant="contained" color="primary">
           Upload
         </Button>
-        <ToastContainer hideProgressBar />
+        <ToastContainer hideProgressBar autoClose={1500} />
       </Layout>
     );
   }
