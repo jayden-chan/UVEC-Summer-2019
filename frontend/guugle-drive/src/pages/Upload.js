@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import Layout from '../components/Layout';
 import Button from '@material-ui/core/Button';
 import Dropzone from 'react-dropzone';
+import {ToastContainer, toast} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
 
 export default class Upload extends Component {
   constructor(props) {
@@ -14,6 +16,12 @@ export default class Upload extends Component {
     this.handleAcceptedFiles = this.handleAcceptedFiles.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
+
+  componentDidMount = async () => {
+    if (!localStorage.getItem('guugle-login-token')) {
+      this.props.history.push('/login');
+    }
+  };
 
   handleAcceptedFiles(acceptedFiles) {
     const currentFiles = this.state.files;
@@ -34,7 +42,11 @@ export default class Upload extends Component {
         Authorization: localStorage.getItem('guugle-login-token'),
       },
     }).then(res => {
-      console.log(res.status);
+      if (res.status !== 201) {
+        res.text().then(text => alert(text));
+      } else {
+        toast.success('File uploaded!');
+      }
     });
   }
 
@@ -79,6 +91,7 @@ export default class Upload extends Component {
         <Button onClick={this.handleSubmit} variant="contained" color="primary">
           Upload
         </Button>
+        <ToastContainer hideProgressBar />
       </Layout>
     );
   }

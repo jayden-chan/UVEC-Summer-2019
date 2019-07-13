@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import Layout from '../components/Layout';
 import Button from '@material-ui/core/Button';
+import {ToastContainer, toast} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
 
 const download = require('downloadjs');
 
@@ -62,8 +64,7 @@ export default class Home extends Component {
       if (res.status !== 200) {
         res.text().then(text => alert(text));
       } else {
-        alert('File deleted');
-
+        toast.success('File deleted');
         this.setState({
           files: this.state.files.filter(f => f !== file),
         });
@@ -71,31 +72,38 @@ export default class Home extends Component {
     });
   }
 
+  renderFilesList() {
+    if (this.state.files.length === 0) {
+      return [<li>You have no files</li>];
+    } else {
+      return this.state.files.map((file, idx) => {
+        return (
+          <li key={file}>
+            {file}
+            <Button
+              onClick={() => this.handleDownload(file)}
+              variant="contained"
+              color="primary">
+              Download
+            </Button>
+            <Button
+              onClick={() => this.handleDelete(file, idx)}
+              variant="contained"
+              color="primary">
+              Delete
+            </Button>
+          </li>
+        );
+      });
+    }
+  }
+
   render() {
     return (
       <Layout>
         <h2>Uploaded Files</h2>
-        <ul>
-          {this.state.files.map((file, idx) => {
-            return (
-              <li key={file}>
-                {file}
-                <Button
-                  onClick={() => this.handleDownload(file)}
-                  variant="contained"
-                  color="primary">
-                  Download
-                </Button>
-                <Button
-                  onClick={() => this.handleDelete(file, idx)}
-                  variant="contained"
-                  color="primary">
-                  Delete
-                </Button>
-              </li>
-            );
-          })}
-        </ul>
+        <ul>{this.renderFilesList()}</ul>
+        <ToastContainer hideProgressBar />
       </Layout>
     );
   }
