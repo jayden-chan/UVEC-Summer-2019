@@ -28,3 +28,5 @@ password TEXT
 cd ../backend && npm install
 npm run
 ```
+
+![ER Diagram](https://github.com/jayden-chan/UVEC-Summer-2019/blob/master/ERDiagram.png)
