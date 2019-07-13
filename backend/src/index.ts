@@ -1,5 +1,5 @@
 import * as express from 'express';
-import {unlink, mkdirSync, stat} from 'fs';
+import {readdir, unlink, mkdirSync, stat} from 'fs';
 import {resolve} from 'path';
 
 import {verify_token} from './util';
@@ -35,14 +35,29 @@ app.get('/hello', (req, res) => {
   res.status(200).send('Hello there testing');
 });
 
-app.post('/upload', (req, res) => {
+app.get('/list', (req, res) => {
   const user_name = verify_token(req.headers.authorization, JWT_SECRET);
   if (!user_name) {
     res.status(401).send('Not authorized');
     return;
   }
 
-  console.log(user_name);
+  const path = resolve(__dirname, `../storage/${user_name}`);
+  readdir(path, (err, files) => {
+    if (err) {
+      res.status(500).send('Error occurred while fetching files');
+    } else {
+      res.status(200).json(files);
+    }
+  });
+});
+
+app.post('/upload', (req, res) => {
+  const user_name = verify_token(req.headers.authorization, JWT_SECRET);
+  if (!user_name) {
+    res.status(401).send('Not authorized');
+    return;
+  }
 
   if (req.files) {
     Object.entries(req.files).forEach(([k, v]) => {
