@@ -4,6 +4,7 @@ import {resolve} from 'path';
 
 import {verify_token} from './util';
 
+import * as cors from 'cors';
 import * as fileUpload from 'express-fileupload';
 import * as bodyParser from 'body-parser';
 import * as jwt from 'jsonwebtoken';
@@ -17,7 +18,7 @@ const client = new Pool({
   ssl: false,
 });
 
-const PORT = 3000;
+const PORT = 3001;
 
 const app = express();
 app.use(
@@ -28,6 +29,7 @@ app.use(
 );
 
 app.use(bodyParser.json());
+app.use(cors());
 
 app.get('/hello', (req, res) => {
   res.status(200).send('Hello there testing');
