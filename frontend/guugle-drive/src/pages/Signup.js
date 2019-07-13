@@ -13,7 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 
-export default class Login extends Component {
+export default class Signup extends Component {
   constructor(props) {
     super(props);
 
@@ -38,7 +38,7 @@ export default class Login extends Component {
 
   handleSubmit(event) {
     console.log(this.state);
-    fetch('http://localhost:3001/login', {
+    fetch('http://localhost:3001/signup', {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
@@ -49,19 +49,12 @@ export default class Login extends Component {
       }),
     })
       .then(res => {
-        if (res.status === 200) {
-          return res.json();
-        } else {
-          res.text().then(text => alert(text));
-          return null;
-        }
-      })
-      .then(json => {
-        console.log('json:', json);
-        if (json !== null) {
-          localStorage.setItem('guugle-login-token', json.token);
-          console.log('token stored');
+        if (res.status === 201) {
           this.props.history.push('/upload');
+        } else {
+          res.text().then(text => {
+            alert(text);
+          });
         }
       })
       .catch(err => {
@@ -76,7 +69,7 @@ export default class Login extends Component {
         <Container component="main" maxWidth="xs">
           <div>
             <Typography component="h1" variant="h5">
-              Login
+              Create an account
             </Typography>
             <form noValidate onSubmit={this.handleSubmit}>
               <TextField
