@@ -1,83 +1,97 @@
-import React, { Component, useState } from "react";
-import Layout from "./Layout";
-import { useDropzone } from "react-dropzone";
-import Button from "@material-ui/core/Button";
-import Dropzone from "react-dropzone";
+import React, {Component, useState, useCallback} from 'react';
+import Layout from './Layout';
+import {useDropzone} from 'react-dropzone';
+import Button from '@material-ui/core/Button';
+import Dropzone from 'react-dropzone';
 
-export default function DropZone() {
-  const [file, setFiles] = useState();
+export default class DropZone extends Component {
+  constructor(props) {
+    super(props);
 
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
+    this.state = {
+      files: {},
+    };
+  }
 
-  const files = acceptedFiles.map(file => (
-    <li key={file.path}>
-      {file.path} - {file.size} bytes
-    </li>
-  ));
+  render() {
+    const {acceptedFiles, getRootProps, getInputProps} = useDropzone();
 
-  function manageFetch(acceptedFiles) {
-    var formData = new FormData();
+    const files = acceptedFiles.map(file => (
+      <li key={file.path}>
+        {file.path} - {file.size} bytes
+      </li>
+    ));
 
-    for (var file in acceptedFiles) {
-      formData.append(file.name, file);
+    function manageFetch(acceptedFiles) {
+      var formData = new FormData();
+
+      for (var file in acceptedFiles) {
+        console.log('name');
+        console.log(file.name);
+        formData.append(file.name, file);
+      }
+
+      console.log('formData:');
+      console.log(formData);
+      const link = 'http://localhost:3001/upload';
+      fetch(link, {
+        method: 'POST',
+        body: acceptedFiles,
+      });
     }
 
-    console.log("formData:");
-    console.log(formData);
-    const link = "http://localhost:3001/upload";
-    fetch(link, {
-      method: "POST",
-      body: acceptedFiles
-    });
-  }
+    const onDrop = useCallback(acceptedFiles => {
+      const reader = new FileReader();
 
-  function onDrop(acceptedFiles) {
+      reader.onabort = () => console.log('file reading was aborted');
+      reader.onerror = () => console.log('file reading has failed');
+      reader.onload = () => {
+        // Do whatever you want with the file contents
+        const binaryStr = reader.result;
+        console.log(reader);
+        console.log(binaryStr);
+
+        // this.setState({files: {[]}})
+      };
+
+      acceptedFiles.forEach(file => reader.readAsBinaryString(file));
+    }, []);
     return (
-      <ul>
-        {acceptedFiles.length > 0 &&
-          acceptedFiles.map(acceptedFile => (
-            <li key={acceptedFiles.length}>{acceptedFile.name}</li>
-          ))}
-      </ul>
+      <Layout>
+        <Dropzone onDrop={onDrop} multiple>
+          {({getRootProps, getInputProps}) => (
+            <div
+              style={{
+                flex: 1,
+                width: '50%',
+                marginRight: 'auto',
+                marginLeft: 'auto',
+                marginTop: '2em',
+                marginBottom: '2em',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '50px',
+                borderWidth: 2,
+                borderRadius: 2,
+                borderColor: '#eeeeee',
+                borderStyle: 'dashed',
+                backgroundColor: '#fafafa',
+                color: '#bdbdbd',
+                outline: 'none',
+              }}
+              {...getRootProps()}>
+              <input {...getInputProps()} />
+              Click me to upload a file!
+            </div>
+          )}
+        </Dropzone>
+        <Button onClick={manageFetch} variant="contained" color="primary">
+          Upload
+        </Button>
+        {acceptedFiles}
+        {onDrop}
+      </Layout>
     );
   }
-
-  return (
-    <Layout>
-      <Dropzone onDrop={onDrop} multiple>
-        {({ getRootProps, getInputProps }) => (
-          <div
-            style={{
-              flex: 1,
-              width: "50%",
-              marginRight: "auto",
-              marginLeft: "auto",
-              marginTop: "2em",
-              marginBottom: "2em",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              padding: "50px",
-              borderWidth: 2,
-              borderRadius: 2,
-              borderColor: "#eeeeee",
-              borderStyle: "dashed",
-              backgroundColor: "#fafafa",
-              color: "#bdbdbd",
-              outline: "none"
-            }}
-            {...getRootProps()}
-          >
-            <input {...getInputProps()} />
-            Click me to upload a file!
-          </div>
-        )}
-      </Dropzone>
-      <Button onClick={manageFetch} variant="contained" color="primary">
-        Upload
-      </Button>
-      {acceptedFiles}
-      {onDrop}
-    </Layout>
-  );
 }
