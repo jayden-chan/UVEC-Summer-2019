@@ -83,27 +83,37 @@ export default class Home extends Component {
 
   renderFilesList() {
     if (this.state.files.length === 0) {
-      return [<li>You have no files</li>];
+      return <div>You have no files</div>;
     } else {
-      return this.state.files.map((file, idx) => {
+      const items = this.state.files.map((file, idx) => {
         return (
-          <li key={file}>
+          <Item key={file}>
             {file}
-            <Button
+            <IconButton
               onClick={() => this.handleDownload(file)}
-              variant="contained"
-              color="primary">
-              Download
-            </Button>
-            <Button
+              variant="outlined"
+              color="primary"
+              size="small"
+              style={{
+                marginLeft: '1em',
+                align: 'right',
+              }}>
+              <CloudDownload />
+            </IconButton>
+            <IconButton
               onClick={() => this.handleDelete(file, idx)}
-              variant="contained"
-              color="primary">
-              Delete
-            </Button>
-          </li>
+              variant="outlined"
+              color="secondary"
+              style={{
+                marginLeft: '1em',
+              }}>
+              <DeleteIcon />
+            </IconButton>
+          </Item>
         );
       });
+
+      return <Uploaded>{items}</Uploaded>;
     }
   }
 
@@ -112,35 +122,7 @@ export default class Home extends Component {
       <Layout>
         <Staging>
           <h3>Uploaded Files</h3>
-          <Uploaded>
-            {this.state.files.map((file, idx) => {
-              return (
-                <Item key={file}>
-                  {file}
-                  <IconButton
-                    onClick={() => this.handleDownload(file)}
-                    variant="outlined"
-                    color="primary"
-                    size="small"
-                    style={{
-                      marginLeft: '1em',
-                      align: 'right',
-                    }}>
-                    <CloudDownload />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => this.handleDelete(file, idx)}
-                    variant="outlined"
-                    color="secondary"
-                    style={{
-                      marginLeft: '1em',
-                    }}>
-                    <DeleteIcon />
-                  </IconButton>
-                </Item>
-              );
-            })}
-          </Uploaded>
+          {this.renderFilesList()}
         </Staging>
         <ToastContainer hideProgressBar autoClose={1500} />
       </Layout>

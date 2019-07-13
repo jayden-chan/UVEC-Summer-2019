@@ -43,6 +43,16 @@ app.get('/list', (req, res) => {
   }
 
   const path = resolve(__dirname, `../storage/${user_name}`);
+
+  try {
+    mkdirSync(path);
+  } catch (e) {
+    if (e.code !== 'EEXIST') {
+      res.status(500).send('Error occurred while created directory');
+      return;
+    }
+  }
+
   readdir(path, (err, files) => {
     if (err) {
       res.status(500).send('Error occurred while fetching files');

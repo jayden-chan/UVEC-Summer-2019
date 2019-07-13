@@ -5,6 +5,9 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 
+import {ToastContainer, toast} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
+
 export default class Login extends Component {
   constructor(props) {
     super(props);
@@ -44,7 +47,7 @@ export default class Login extends Component {
         if (res.status === 200) {
           return res.json();
         } else {
-          res.text().then(text => alert(text));
+          res.text().then(text => toast.error(text));
           return null;
         }
       })
@@ -107,6 +110,7 @@ export default class Login extends Component {
             </form>
           </div>
         </Container>
+        <ToastContainer hideProgressBar autoClose={1500} />
       </Layout>
     );
   }
