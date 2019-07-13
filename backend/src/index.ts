@@ -133,13 +133,34 @@ app.get('/file/:filename', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  if (!req.body.user) {
-    res.status(400).send('no user');
-  } else {
-    res
-      .status(200)
-      .send(jwt.sign(req.body.user.replace(/\s+/g, '_'), JWT_SECRET));
-  }
+  const query = sqlstring.format(
+    'SELECT username FROM data WHERE username = ? AND password = crypt(?, password)',
+    [req.body.username, req.body.password],
+  );
+
+  client.query(query, (err, response) => {
+    let result = [];
+    if (err) {
+      console.log(err);
+      res.status(500).send('Error during db call');
+      return;
+    }
+
+    for (let row of response.rows) {
+      result.push(row);
+    }
+
+    switch (result.length) {
+      case 1:
+        let token = jwt.sign(result[0].username, JWT_SECRET);
+        res.status(200).send(JSON.stringify({token: token}));
+        break;
+
+      default:
+        res.status(401).send('Bad username or password');
+        break;
+    }
+  });
 });
 
 app.post('/signup', (req, res) => {
