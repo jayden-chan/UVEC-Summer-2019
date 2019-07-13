@@ -88,15 +88,21 @@ app.post('/upload', (req, res) => {
           res.status(400).send('File already exists!');
         } else if (err.code === 'ENOENT') {
           if (v instanceof Array) {
+            let outer_err = null;
             v.forEach(file => {
-              file.mv(full_path, err => {
-                if (err) {
-                  res.status(500).send('Error occurred while writing file');
-                } else {
-                  res.status(201).send('File created');
-                }
-              });
+              if (!outer_err) {
+                file.mv(full_path, err => {
+                  if (err) {
+                    outer_err = err;
+                    res.status(500).send('Error occurred while writing file');
+                  }
+                });
+              }
             });
+
+            if (!outer_err) {
+              res.status(201).send('Files created');
+            }
           } else {
             v.mv(full_path, err => {
               if (err) {
