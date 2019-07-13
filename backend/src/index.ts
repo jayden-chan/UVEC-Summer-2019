@@ -1,9 +1,10 @@
 import * as express from 'express';
-import {unlink, mkdirSync, stat} from 'fs';
+import {readdir, unlink, mkdirSync, stat} from 'fs';
 import {resolve} from 'path';
 
 import {verify_token} from './util';
 
+import * as cors from 'cors';
 import * as fileUpload from 'express-fileupload';
 import * as bodyParser from 'body-parser';
 import * as jwt from 'jsonwebtoken';
@@ -17,7 +18,7 @@ const client = new Pool({
   ssl: false,
 });
 
-const PORT = 3000;
+const PORT = 3001;
 
 const app = express();
 app.use(
@@ -28,9 +29,27 @@ app.use(
 );
 
 app.use(bodyParser.json());
+app.use(cors());
 
 app.get('/hello', (req, res) => {
   res.status(200).send('Hello there testing');
+});
+
+app.get('/list', (req, res) => {
+  const user_name = verify_token(req.headers.authorization, JWT_SECRET);
+  if (!user_name) {
+    res.status(401).send('Not authorized');
+    return;
+  }
+
+  const path = resolve(__dirname, `../storage/${user_name}`);
+  readdir(path, (err, files) => {
+    if (err) {
+      res.status(500).send('Error occurred while fetching files');
+    } else {
+      res.status(200).json(files);
+    }
+  });
 });
 
 app.post('/upload', (req, res) => {
@@ -39,8 +58,6 @@ app.post('/upload', (req, res) => {
     res.status(401).send('Not authorized');
     return;
   }
-
-  console.log(user_name);
 
   if (req.files) {
     Object.entries(req.files).forEach(([k, v]) => {
