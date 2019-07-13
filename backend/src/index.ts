@@ -7,13 +7,14 @@ import {verify_token} from './util';
 import * as fileUpload from 'express-fileupload';
 import * as bodyParser from 'body-parser';
 import * as jwt from 'jsonwebtoken';
+import * as sqlstring from 'sqlstring';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'Hello there testing';
 
 const {Pool} = require('pg');
 const client = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: true,
+  connectionString: 'postgres://jayden@localhost/users',
+  ssl: false,
 });
 
 const PORT = 3000;
@@ -46,7 +47,14 @@ app.post('/upload', (req, res) => {
       const path = resolve(__dirname, `../storage/${user_name}`);
       const full_path = `${path}/${k}`;
 
-      mkdirSync(path);
+      try {
+        mkdirSync(path);
+      } catch (e) {
+        if (e.code !== 'EEXIST') {
+          res.status(500).send('Error occurred while created directory');
+          return;
+        }
+      }
 
       stat(full_path, function(err, stat) {
         if (err == null) {
@@ -82,27 +90,23 @@ app.post('/upload', (req, res) => {
   }
 });
 
-app.delete('/delete', (req, res) => {
+app.delete('/delete/:filename', (req, res) => {
   const user_name = verify_token(req.headers.authorization, JWT_SECRET);
   if (!user_name) {
     res.status(401).send('Not authorized');
     return;
   }
 
-  if (!req.body.file) {
-    res.status(400).send('no file provided');
-  } else {
-    unlink(
-      resolve(__dirname, `../storage/${user_name}/${req.body.file}`),
-      err => {
-        if (err) {
-          res.status(500).send(err.toString());
-        } else {
-          res.status(200).send(`file ${req.body.file} deleted`);
-        }
-      },
-    );
-  }
+  unlink(
+    resolve(__dirname, `../storage/${user_name}/${req.params.filename}`),
+    err => {
+      if (err) {
+        res.status(500).send(err.toString());
+      } else {
+        res.status(200).send(`file ${req.body.file} deleted`);
+      }
+    },
+  );
 });
 
 app.get('/file/:filename', (req, res) => {
@@ -136,6 +140,43 @@ app.post('/login', (req, res) => {
       .status(200)
       .send(jwt.sign(req.body.user.replace(/\s+/g, '_'), JWT_SECRET));
   }
+});
+
+app.post('/signup', (req, res) => {
+  if (!req.body.username || !req.body.password) {
+    res.status(400).send('Missing username or password');
+    return;
+  }
+  const check_query = sqlstring.format(
+    'SELECT * FROM data WHERE username = ?',
+    [req.body.username],
+  );
+
+  const insert_query = sqlstring.format(
+    `INSERT INTO data(username, password) VALUES(?, crypt(?, gen_salt('bf', 8)))`,
+    [req.body.username, req.body.password],
+  );
+
+  client.query(check_query, (err, response) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send('Error occurred with db check');
+      return;
+    }
+
+    if (response.rows.length === 0) {
+      client.query(insert_query, (err, response) => {
+        if (err) {
+          console.log(err);
+          res.status(500).send('Error occurred with db check');
+        } else {
+          res.status(201).send('user created');
+        }
+      });
+    } else {
+      res.status(400).send('user already exists');
+    }
+  });
 });
 
 app.listen(PORT, () => {
