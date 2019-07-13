@@ -1,25 +1,17 @@
-import React, {Component} from 'react';
-import Layout from '../components/Layout';
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
-import {makeStyles} from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
+import React, { Component } from "react";
+import Layout from "../components/Layout";
+import Button from "@material-ui/core/Button";
+import TextField from "@material-ui/core/TextField";
+import Typography from "@material-ui/core/Typography";
+import Container from "@material-ui/core/Container";
 
 export default class Login extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      username: '',
-      password: '',
+      username: "",
+      password: ""
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -32,21 +24,21 @@ export default class Login extends Component {
     const name = target.name;
 
     this.setState({
-      [name]: value,
+      [name]: value
     });
   }
 
   handleSubmit(event) {
     console.log(this.state);
-    fetch('http://localhost:3001/login', {
-      method: 'post',
+    fetch("http://localhost:3001/login", {
+      method: "post",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         username: this.state.username,
-        password: this.state.password,
-      }),
+        password: this.state.password
+      })
     })
       .then(res => {
         if (res.status === 200) {
@@ -57,11 +49,11 @@ export default class Login extends Component {
         }
       })
       .then(json => {
-        console.log('json:', json);
+        console.log("json:", json);
         if (json !== null) {
-          localStorage.setItem('guugle-login-token', json.token);
-          console.log('token stored');
-          this.props.history.push('/upload');
+          localStorage.setItem("guugle-login-token", json.token);
+          console.log("token stored");
+          this.props.history.push("/upload");
         }
       })
       .catch(err => {
@@ -109,7 +101,8 @@ export default class Login extends Component {
                 type="submit"
                 fullWidth
                 variant="contained"
-                color="primary">
+                color="primary"
+              >
                 Submit
               </Button>
             </form>
