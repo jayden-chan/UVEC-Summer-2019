@@ -7,10 +7,10 @@ Next, clone the respository to get the source code onto your computer
 
 ## Run frontend
 ```
-cd frontend && npm instal
-npm run
+cd frontend && npm install
+npm start
 ```
-##Set up database
+## Set up database
 It is strongly recommended to use a Cloud-Based solution for your Postgres database.
 However, if you wish to install postgres locally, instructions can be found here:
 http://postgresguide.com/setup/install.html
@@ -26,8 +26,9 @@ CREATE TABLE data (
 
 ## Run backend
 ```
-cd ../backend && npm install
-npm run
+cd backend && npm install
+npm run build
+npm start
 ```
 
 ![ER Diagram](https://github.com/jayden-chan/UVEC-Summer-2019/blob/master/ERDiagram.png)
